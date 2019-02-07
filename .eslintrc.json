@@ -1,0 +1,20 @@
+{
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true,
+      "modules": true,
+      "experimentalObjectRestSpread": true
+    }
+  },
+  "extends": ["airbnb", "prettier"],
+  "plugins": ["prettier", "jest"],
+  "rules": {
+    "prettier/prettier": ["error"]
+  },
+  "env": {
+    "jest/globals": true
+  }
+}
