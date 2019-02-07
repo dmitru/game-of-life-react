@@ -91,7 +91,7 @@ export const getNeighborsMap = _.memoize(field => {
   return neighborsMap
 })
 
-export const getNextGameField = field => {
+const getNextGameFieldOneStep = field => {
   const neighborsMap = getNeighborsMap(field)
   const newField = _.cloneDeep(field)
 
@@ -111,4 +111,13 @@ export const getNextGameField = field => {
   })
 
   return newField
+}
+
+export const getNextGameField = (field, steps = 1) => {
+  let resultField = field
+  for (let i = 0; i < steps; i += 1) {
+    resultField = getNextGameFieldOneStep(resultField)
+  }
+
+  return resultField
 }

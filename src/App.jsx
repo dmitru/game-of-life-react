@@ -17,7 +17,7 @@ const GameField = ({ field, width, height }) => {
   const cellHeight = height / cols
 
   return (
-    <div className={css(`border: 1px solid black; width: ${width}px; height: ${height}px;`)}>
+    <div className={css(`border: 1px solid #ddd; width: ${width}px; height: ${height}px;`)}>
       <svg height={height} width={width}>
         {_.flatten(
           field.map((rowCells, rowIndex) =>
@@ -30,7 +30,8 @@ const GameField = ({ field, width, height }) => {
                 width={cellWidth}
                 height={cellHeight}
                 fill={cellValue === 1 ? 'black' : 'white'}
-                stroke="#999"
+                stroke="#ddd"
+                className={css(`transition: fill 0.4s;`)}
               />
             )),
           ),
@@ -54,6 +55,7 @@ GameField.defaultProps = {
 
 const Button = styled.button`
   padding: 10px 15px;
+  margin: 5px;
   background: turquoise;
   border: 1px solid ${darken(0.2, 'turquoise')};
 
@@ -63,33 +65,75 @@ const Button = styled.button`
   }
 `
 
+const DEFAULT_FIELD_SIZE = 70
+
 class App extends Component {
   state = {
     fieldSize: {
-      width: 500,
-      height: 500,
+      width: 800,
+      height: 600,
     },
-    field: createInitialGameField({ getCellValue: () => (Math.random() > 0.9 ? 1 : 0) }),
+
+    stepsCount: 0,
+    rows: DEFAULT_FIELD_SIZE,
+    cols: DEFAULT_FIELD_SIZE,
+
+    isPlaying: false,
+
+    field: createInitialGameField({
+      rows: DEFAULT_FIELD_SIZE,
+      cols: DEFAULT_FIELD_SIZE,
+      getCellValue: () => (Math.random() > 0.9 ? 1 : 0),
+    }),
   }
 
-  handleRandomGameClick = () => {
+  handleStartAgainClick = () => {
     this.setState({
-      field: createInitialGameField({ getCellValue: () => (Math.random() > 0.9 ? 1 : 0) }),
+      field: createInitialGameField({
+        rows: this.state.rows,
+        cols: this.state.cols,
+        getCellValue: () => (Math.random() > 0.9 ? 1 : 0),
+        stepsCount: 0,
+      }),
     })
   }
 
   handleNextStateClick = () => {
+    this.nextState()
+  }
+
+  nextState = () => {
     this.setState({
       field: getNextGameField(this.state.field),
+      stepsCount: this.state.stepsCount + 1,
     })
+  }
+
+  handleTogglePlayback = () => {
+    const isStarting = !this.state.isPlaying
+    if (isStarting) {
+      this.updateIntervalHandle = setInterval(this.nextState, 100)
+    } else {
+      clearInterval(this.updateIntervalHandle)
+    }
+
+    this.setState({ isPlaying: !this.state.isPlaying, stepsCount: 0 })
   }
 
   render() {
     return (
-      <div className={css(`display: flex;`)}>
+      <div className={css(`display: flex; flex-direction: column;`)}>
         <div className={css(`padding: 10px;`)}>
-          <Button onClick={this.handleRandomGameClick}>Random game</Button>
+          <Button onClick={this.handleStartAgainClick}>Start again</Button>
           <Button onClick={this.handleNextStateClick}>Next</Button>
+          <Button onClick={this.handleTogglePlayback} className={css(`width: 80px;`)}>
+            {this.state.isPlaying ? 'Pause' : 'Play'}
+          </Button>
+
+          <span>
+            Step:
+            {this.state.stepsCount}
+          </span>
         </div>
 
         <div className={css(`padding: 10px; flex: 1;`)}>
